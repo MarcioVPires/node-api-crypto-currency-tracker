@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "migrate": "npx knex migrate:latest --knexfile database/knexfile.js",
+    "rollback": "npx knex migrate:down 20220826012717_coins_list.js --knexfile database/knexfile.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "homepage": "https://github.com/MarcioVPires/node-api-crypto-currency-tracker#readme",
   "dependencies": {
+    "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "knex": "^2.2.0",
