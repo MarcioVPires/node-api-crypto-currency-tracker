@@ -1,29 +1,28 @@
 const populateDAO = require("../../dao/populateDAO");
-const axios = require("../../../service/axios");
-const formatData = require("./formatData");
+const fs = require("fs");
 
-async function coinsByRank(data) {
+async function coinsByRank() {
   try {
-    const { per_page = undefined, page = 1 } = data;
-    const pagination = {
-      per_page,
-      page,
-    };
-
-    if (!per_page || per_page < 10) {
-      pagination.per_page = 10;
-    } else if (per_page > 250) {
-      pagination.per_page = 250;
-    }
-    console.log({ onserver: true, pagination });
-    const query = `/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${per_page}&page=${page}&sparkline=false`;
-    const { data: response } = await axios.get(query);
-
-    if (response.length === 0) {
-      return { next_page: false, message: "This page doesn't exists" };
+    const content = JSON.parse(fs.readFileSync("./coins_list.json", "utf-8"));
+    const response = { status: "", data: [] };
+    const coins = [
+      [...new Set(content.coins.filter((coin) => coin.rank !== null))],
+      [...new Set(content.coins.filter((coin) => coin.rank === null))],
+    ];
+    //const coins = content.coins.filter((coin) => coin.rank === null);
+    if (coins.length <= 0) {
+      return { message: "You need to init the populate process first" };
     }
 
-    return populateDAO.insertDataCoins(formatData(response));
+    coins.forEach(async (coinsArray) => {
+      const dataReturn = await populateDAO.insertDataCoins(coinsArray);
+      response.status = dataReturn.status;
+      response.data.push(dataReturn.data);
+    });
+
+    console.log("Finnish");
+    return response;
+    // return populateDAO.insertDataCoins(coins[0]);
   } catch (error) {
     return error;
   }

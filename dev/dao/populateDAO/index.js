@@ -5,7 +5,7 @@ async function insertDataCoins(data) {
   try {
     console.log("database call...");
     const doExists = await checkIfAlreadyExists(data);
-
+    console.log({ doExists });
     if (doExists.data) {
       console.log({ where: "DAO", doExists });
       return { ...doExists };

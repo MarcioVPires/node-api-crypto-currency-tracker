@@ -7,12 +7,6 @@ async function checkIfAlreadyExists(obj) {
     return curr.currency_id;
   });
 
-  // const checkData = new Promise((res, rej) => {
-
-  // })
-
-  // console.log({ type: "idsToCheck", idsToCheck });
-
   await Promise.all(
     idsToCheck.map(async (curr) => {
       try {
@@ -29,9 +23,9 @@ async function checkIfAlreadyExists(obj) {
   );
 
   return {
-    status: "error",
+    status: existentData.length > 0 ? "error" : "ok",
     data: existentData.length > 0 ? true : false,
-    existentData,
+    existentData: existentData.length,
   };
 }
 
