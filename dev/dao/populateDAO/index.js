@@ -1,17 +1,20 @@
-const db = require("../../database/db");
+const db = require("../../../database/db");
 const checkIfAlreadyExists = require("./checkIfAlreadyExists");
 
 async function insertDataCoins(data) {
   try {
-    const doExists = await checkIfAlreadyExists(db, data);
-
+    console.log("database call...");
+    const doExists = await checkIfAlreadyExists(data);
+    console.log({ doExists });
     if (doExists.data) {
+      console.log({ where: "DAO", doExists });
       return { ...doExists };
     }
 
     const coinsList = await db("coins_list").insert([...data]);
-    return { status: "done" };
+    return { status: "done", data };
   } catch (error) {
+    console.log(error);
     return { status: "error", error };
   }
 }

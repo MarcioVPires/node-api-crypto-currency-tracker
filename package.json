@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "migrate": "npx knex migrate:latest --knexfile database/knexfile.js",
-    "rollback": "npx knex migrate:down 20220826012717_coins_list.js --knexfile database/knexfile.js"
+    "rollback": "npx knex migrate:down 20220826012717_coins_list.js --knexfile database/knexfile.js",
+    "initPopulate": "node scripts/initPopulate/index.js"
   },
   "repository": {
     "type": "git",

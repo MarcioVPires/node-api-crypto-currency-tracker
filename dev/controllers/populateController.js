@@ -1,9 +1,11 @@
-const populateService = require("../service/populateService");
+const populateService = require("../services/populateService");
+const fs = require("fs");
 
 async function populateDBInitialData(req, res) {
   try {
-    const data = await populateService.coinsByRank(req.body);
-    console.log({ type: "controller", data });
+    console.log({ where: "controller", action: "call populateService" });
+    const data = await populateService.coinsByRank();
+
     if (data.status === "error") {
       return res.status(501).json(data);
     }
