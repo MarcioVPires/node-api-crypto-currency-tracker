@@ -1,11 +1,7 @@
 const express = require("express");
-const routes = express();
-const axios = require("./service/axios");
-const { person } = require("./controller/person");
-const { populateDBInitialData } = require("./controller/populateController");
+const router = express.Router();
 
-routes.get("/test", populateDBInitialData);
-routes.post("/person", person);
-routes.put("/dev/populate");
+router.route("/").get((req, res) => res.json("Main -> /"));
+router.route("/test").get((req, res) => res.json("Test -> /test"));
 
-module.exports = routes;
+module.exports = router;

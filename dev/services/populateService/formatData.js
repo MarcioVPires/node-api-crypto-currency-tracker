@@ -14,6 +14,9 @@ module.exports = function formatData(data) {
       market_cap: currency.market_cap,
       volume: currency.total_volume,
       logo: currency.image,
+      // last_hour_change_update: new Date(
+      //   new Date().setHours(new Date().getHours() - 1)
+      // ).toISOString(),
     });
   });
   //   console.log(newData[0]);
