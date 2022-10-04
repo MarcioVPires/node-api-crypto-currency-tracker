@@ -1,12 +1,14 @@
-const { getPageResults } = require("../service/list");
+const { getPageResults, checkForNewerData } = require("../service/list");
 
 async function list(req, res) {
   try {
-    const listResult = await getPageResults(req);
-    if (!listResult) {
-      res.json("There's no list");
-    }
-    res.json(listResult);
+    const updateIfNecessary = await checkForNewerData(req);
+    // const listResult = await getPageResults(req);
+    // if (!listResult) {
+    //   res.json("There's no list");
+    // }
+    // res.json(listResult);
+    res.json(updateIfNecessary);
   } catch (error) {
     res.json(error);
   }
