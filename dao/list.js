@@ -16,4 +16,16 @@ async function pageResultsDAO(result_amount, startFrom) {
   return page_results;
 }
 
-module.exports = { pageResultsDAO, totalEntriesDao };
+async function priceUpdateDAO() {}
+
+async function hourlyDataUpdateDao() {}
+
+async function dailyDataUpdateDao() {}
+
+module.exports = {
+  pageResultsDAO,
+  totalEntriesDao,
+  priceUpdateDAO,
+  hourlyDataUpdateDao,
+  dailyDataUpdateDao,
+};

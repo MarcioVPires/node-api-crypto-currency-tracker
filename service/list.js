@@ -33,7 +33,7 @@ async function getPageResults(req) {
   }
 }
 
-async function checkForNewerData(req) {
+async function checkOutdatedData(req) {
   try {
     const { error, result_amount, startFrom } = await checkPaginationInputs(
       req
@@ -44,22 +44,40 @@ async function checkForNewerData(req) {
     }
 
     const results = Array.from(await pageResultsDAO(result_amount, startFrom));
-    // const toUpdate =
-    const test = results[0].updated_at;
-    const time = new Date(test);
-    //console.log({ before: new Date(test) });
-    console.log(new Date(time.getTime()));
-    console.log(new Date(time.getTime() - 60 * 60 * 1000));
 
-    // results.forEach((curr) => {
-    //   const date = new Date(curr.updated_at);
-    //   console.log(date);
-    //   console.log(date.getDate());
-    // });
-    return "foi";
+    const hourToMs = (hour) => hour * 60 * 60 * 1000;
+    const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
+
+    const outdatedData = results.map((curr) => {
+      const {
+        updated_at: last,
+        last_24h_change_update: daily,
+        last_hour_change_update: hourly,
+      } = curr;
+
+      const data = {
+        update: false,
+        currency_id: curr.currency_id,
+        name: curr.name,
+      };
+
+      if (timeStamp(daily) + hourToMs(24) < timeStamp()) {
+        data.update = true;
+        data.daily = true;
+      }
+
+      if (timeStamp(hourly) + hourToMs(1) < timeStamp()) {
+        data.update = true;
+        data.hourly = true;
+      }
+
+      return data.update && data;
+    });
+
+    return outdatedData;
   } catch (error) {
     console.log(error);
   }
 }
 
-module.exports = { getPageResults, checkForNewerData };
+module.exports = { getPageResults, checkOutdatedData };
