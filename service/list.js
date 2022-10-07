@@ -80,4 +80,9 @@ async function checkOutdatedData(req) {
   }
 }
 
-module.exports = { getPageResults, checkOutdatedData };
+async function updateData(outdatedData) {
+  for (const data of outdatedData) {
+  }
+}
+
+module.exports = { getPageResults, checkOutdatedData, updateData };
