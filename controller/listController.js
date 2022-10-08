@@ -8,9 +8,9 @@ async function list(req, res) {
   try {
     const outDatedData = await checkOutdatedData(req);
 
-    // if (outDatedData.length > 1) {
-    //   await updateData(outDatedData);
-    // }
+    if (outDatedData.length > 1) {
+      await updateData(outDatedData);
+    }
 
     // const listResult = await getPageResults(req);
     // if (!listResult) {

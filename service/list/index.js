@@ -1,4 +1,6 @@
-const { pageResultsDAO, totalEntriesDao } = require("../dao/list");
+const { pageResultsDAO, totalEntriesDao } = require("../../dao/list");
+const { formatUpdatedData } = require("./formatUpdatedData");
+const axios = require("../axios");
 
 async function checkPaginationInputs(req) {
   const total_entries = await totalEntriesDao();
@@ -81,8 +83,15 @@ async function checkOutdatedData(req) {
 }
 
 async function updateData(outdatedData) {
-  for (const data of outdatedData) {
-  }
+  const params = outdatedData.map((curr) => curr.currency_id).join("%2C");
+
+  const { data } = await axios.get(
+    `/coins/markets?vs_currency=usd&ids=${params}&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h%2C24h'`
+  );
+
+  const newData = formatUpdatedData(data, outdatedData);
+
+  console.log(data);
 }
 
 module.exports = { getPageResults, checkOutdatedData, updateData };
