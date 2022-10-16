@@ -1,6 +1,12 @@
-const { pageResultsDAO, totalEntriesDao } = require("../../dao/list");
+const {
+  pageResultsDAO,
+  totalEntriesDao,
+  priceUpdateDAO,
+  dailyDataUpdateDao,
+} = require("../../dao/list");
 const { formatUpdatedData } = require("./formatUpdatedData");
 const axios = require("../axios");
+const knex = require("knex");
 
 async function checkPaginationInputs(req) {
   const total_entries = await totalEntriesDao();
@@ -41,6 +47,8 @@ async function checkOutdatedData(req) {
       req
     );
 
+    console.log({ startFrom, result_amount });
+
     if (error) {
       return error;
     }
@@ -50,31 +58,33 @@ async function checkOutdatedData(req) {
     const hourToMs = (hour) => hour * 60 * 60 * 1000;
     const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
 
-    const outdatedData = results.map((curr) => {
-      const {
-        updated_at: last,
-        last_24h_change_update: daily,
-        last_hour_change_update: hourly,
-      } = curr;
+    const outdatedData = results
+      .map((curr) => {
+        const {
+          updated_at: last,
+          last_24h_change_update: daily,
+          last_hour_change_update: hourly,
+        } = curr;
 
-      const data = {
-        update: false,
-        currency_id: curr.currency_id,
-        name: curr.name,
-      };
+        const data = {
+          update: false,
+          currency_id: curr.currency_id,
+          name: curr.name,
+        };
 
-      if (timeStamp(daily) + hourToMs(24) < timeStamp()) {
-        data.update = true;
-        data.daily = true;
-      }
+        if (timeStamp(daily) + hourToMs(24) < timeStamp()) {
+          data.update = true;
+          data.daily = true;
+        }
 
-      if (timeStamp(hourly) + hourToMs(1) < timeStamp()) {
-        data.update = true;
-        data.hourly = true;
-      }
+        if (timeStamp(hourly) + hourToMs(1) < timeStamp()) {
+          data.update = true;
+          data.hourly = true;
+        }
 
-      return data.update && data;
-    });
+        return data.update && data;
+      })
+      .filter((curr) => curr !== false);
 
     return outdatedData;
   } catch (error) {
@@ -89,9 +99,43 @@ async function updateData(outdatedData) {
     `/coins/markets?vs_currency=usd&ids=${params}&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h%2C24h'`
   );
 
-  const newData = formatUpdatedData(data, outdatedData);
+  const newData = formatUpdatedData(data);
 
-  console.log(data);
+  try {
+    newData.forEach(async (curr) => {
+      const {
+        update = false,
+        daily = false,
+        hourly = false,
+      } = outdatedData.find((data) => {
+        return data.currency_id === curr.currency_id;
+      });
+
+      const currentTime = new Date().toISOString();
+
+      const timeUpdate = {
+        updated_at: daily || update ? currentTime : null,
+        last_24h_change_update: daily ? currentTime : null,
+        last_hour_change_update: daily || hourly ? currentTime : null,
+      };
+
+      if (daily) {
+        console.log(timeUpdate);
+        return await dailyDataUpdateDao({ ...curr, ...timeUpdate });
+      }
+
+      // if (update) {
+      //   await priceUpdateDAO({ ...curr, ...timeUpdate });
+      // }
+
+      // if (hourly) {
+      //   await hourlyDataUpdateDao({ ...curr, ...timeUpdate });
+      // }
+      console.log(timeUpdate);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports = { getPageResults, checkOutdatedData, updateData };
