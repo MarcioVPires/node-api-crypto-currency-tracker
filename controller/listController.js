@@ -7,8 +7,9 @@ const {
 async function list(req, res) {
   try {
     const outDatedData = await checkOutdatedData(req);
-    console.log(outDatedData);
-    if (outDatedData.length > 1) {
+    console.log({ controller: outDatedData });
+    if (outDatedData.length >= 1) {
+      console.log("entrou");
       await updateData(outDatedData);
     }
 

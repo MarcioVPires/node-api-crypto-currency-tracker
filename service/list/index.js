@@ -2,6 +2,7 @@ const {
   pageResultsDAO,
   totalEntriesDao,
   priceUpdateDAO,
+  hourlyDataUpdateDao,
   dailyDataUpdateDao,
 } = require("../../dao/list");
 const { formatUpdatedData } = require("./formatUpdatedData");
@@ -100,7 +101,8 @@ async function updateData(outdatedData) {
   );
 
   const newData = formatUpdatedData(data);
-
+  console.log("aqui");
+  console.log(typeof newData);
   try {
     newData.forEach(async (curr) => {
       const {
@@ -118,19 +120,22 @@ async function updateData(outdatedData) {
         last_24h_change_update: daily ? currentTime : null,
         last_hour_change_update: daily || hourly ? currentTime : null,
       };
-
+      console.log(timeUpdate);
       if (daily) {
-        console.log(timeUpdate);
+        console.log("Daily");
         return await dailyDataUpdateDao({ ...curr, ...timeUpdate });
       }
 
-      // if (update) {
-      //   await priceUpdateDAO({ ...curr, ...timeUpdate });
-      // }
+      if (hourly) {
+        console.log("Hourly");
+        return await hourlyDataUpdateDao({ ...curr, ...timeUpdate });
+      }
 
-      // if (hourly) {
-      //   await hourlyDataUpdateDao({ ...curr, ...timeUpdate });
-      // }
+      if (update) {
+        console.log("Price");
+        await priceUpdateDAO({ ...curr, ...timeUpdate });
+      }
+
       console.log(timeUpdate);
     });
   } catch (error) {
