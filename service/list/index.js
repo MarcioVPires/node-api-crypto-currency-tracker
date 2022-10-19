@@ -56,6 +56,7 @@ async function checkOutdatedData(req) {
 
     const results = Array.from(await pageResultsDAO(result_amount, startFrom));
 
+    const minuteToMs = (minute) => minute * 60 * 1000;
     const hourToMs = (hour) => hour * 60 * 60 * 1000;
     const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
 
@@ -83,6 +84,11 @@ async function checkOutdatedData(req) {
           data.hourly = true;
         }
 
+        if (timeStamp(last) + minuteToMs(1) < timeStamp()) {
+          data.update = true;
+          data.price = true;
+        }
+
         return data.update && data;
       })
       .filter((curr) => curr !== false);
@@ -106,9 +112,9 @@ async function updateData(outdatedData) {
   try {
     newData.forEach(async (curr) => {
       const {
-        update = false,
         daily = false,
         hourly = false,
+        price = false,
       } = outdatedData.find((data) => {
         return data.currency_id === curr.currency_id;
       });
@@ -116,7 +122,7 @@ async function updateData(outdatedData) {
       const currentTime = new Date().toISOString();
 
       const timeUpdate = {
-        updated_at: daily || update ? currentTime : null,
+        updated_at: daily || price ? currentTime : null,
         last_24h_change_update: daily ? currentTime : null,
         last_hour_change_update: daily || hourly ? currentTime : null,
       };
@@ -131,7 +137,7 @@ async function updateData(outdatedData) {
         return await hourlyDataUpdateDao({ ...curr, ...timeUpdate });
       }
 
-      if (update) {
+      if (price) {
         console.log("Price");
         await priceUpdateDAO({ ...curr, ...timeUpdate });
       }
