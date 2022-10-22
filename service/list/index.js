@@ -164,8 +164,6 @@ async function checkOutdatedPrice(coins) {
     if (timeStamp(lastUpdate) + minuteToMs(1) < timeStamp()) {
       coins.splice(coins.indexOf(coin.currency_id), 1);
     }
-
-    console.log(coins);
   });
 }
 
