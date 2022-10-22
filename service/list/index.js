@@ -4,6 +4,7 @@ const {
   priceUpdateDAO,
   hourlyDataUpdateDao,
   dailyDataUpdateDao,
+  getPriceDao,
 } = require("../../dao/list");
 const { formatUpdatedData } = require("./formatUpdatedData");
 const axios = require("../axios");
@@ -107,8 +108,7 @@ async function updateData(outdatedData) {
   );
 
   const newData = formatUpdatedData(data);
-  console.log("aqui");
-  console.log(typeof newData);
+
   try {
     newData.forEach(async (curr) => {
       const {
@@ -141,12 +141,38 @@ async function updateData(outdatedData) {
         console.log("Price");
         await priceUpdateDAO({ ...curr, ...timeUpdate });
       }
-
-      console.log(timeUpdate);
     });
   } catch (error) {
     console.log(error);
   }
 }
 
-module.exports = { getPageResults, checkOutdatedData, updateData };
+async function getPrice(coins) {
+  const newPrice = await getPriceDao(coins);
+
+  return newPrice;
+}
+
+async function checkOutdatedPrice(coins) {
+  const prices = await getPriceDao(coins);
+
+  prices.forEach((coin) => {
+    const lastUpdate = coin.updated_at;
+    const minuteToMs = (minute) => minute * 60 * 1000;
+    const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
+
+    if (timeStamp(lastUpdate) + minuteToMs(1) < timeStamp()) {
+      coins.splice(coins.indexOf(coin.currency_id), 1);
+    }
+
+    console.log(coins);
+  });
+}
+
+module.exports = {
+  getPageResults,
+  checkOutdatedData,
+  updateData,
+  getPrice,
+  checkOutdatedPrice,
+};

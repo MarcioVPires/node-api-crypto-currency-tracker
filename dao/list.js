@@ -43,10 +43,19 @@ async function dailyDataUpdateDao(newData) {
     .update({ ...newData });
 }
 
+async function getPriceDao(coins) {
+  const prices = await db("coins_list")
+    .select("*")
+    .where({ currency_id: coins.currency_id });
+
+  return prices;
+}
+
 module.exports = {
   pageResultsDAO,
   totalEntriesDao,
   priceUpdateDAO,
   hourlyDataUpdateDao,
   dailyDataUpdateDao,
+  getPriceDao,
 };

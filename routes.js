@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { list } = require("./controller/listController");
+const { list, getPrice } = require("./controller/listController");
+const { signup } = require("./controller/userController");
 
-router.route("/").get((req, res) => res.json("Main -> /"));
-
-router.route("/test").get((req, res) => res.json("Test -> /test"));
-
+// router.route("/login").get();
+router.route("/signup").get(signup);
 router.route("/list/:page/:result_amount").get(list);
+// router.route("/search").get();
+router.route("/price").get(getPrice);
+// router.route("/history").get();
+// router.route("/watchlist").get();
 
 module.exports = router;

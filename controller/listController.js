@@ -2,6 +2,7 @@ const {
   getPageResults,
   checkOutdatedData,
   updateData,
+  checkOutdatedPrice,
 } = require("../service/list");
 
 async function list(req, res) {
@@ -25,4 +26,21 @@ async function list(req, res) {
   }
 }
 
-module.exports = { list };
+async function getPrice(req, res) {
+  try {
+    const { coinsPriceToUpdate } = req.body;
+    const outdatedPrice = checkOutdatedPrice(coinsPriceToUpdate);
+
+    if (outdatedPrice.length < 1) {
+      return res.json({ message: "All coins are updated" });
+    }
+
+    const updatedPrice = updatePrice(outdatedPrice);
+
+    res.json(updatedPrice);
+  } catch (error) {
+    res.json(error);
+  }
+}
+
+module.exports = { list, getPrice };
