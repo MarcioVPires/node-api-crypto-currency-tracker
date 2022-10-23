@@ -44,9 +44,14 @@ async function dailyDataUpdateDao(newData) {
 }
 
 async function getPriceDao(coins) {
-  const prices = await db("coins_list")
-    .select("*")
-    .where({ currency_id: coins.currency_id });
+  const prices = await Promise.all(
+    coins.map(async (curr) => {
+      const coin = await db("coins_list")
+        .select("currency_id", "updated_at")
+        .where(curr);
+      return coin[0];
+    })
+  );
 
   return prices;
 }

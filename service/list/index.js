@@ -7,6 +7,7 @@ const {
   getPriceDao,
 } = require("../../dao/list");
 const { formatUpdatedData } = require("./formatUpdatedData");
+const { minuteToMs, hourToMs, timeStamp } = require("../utils/time");
 const axios = require("../axios");
 const knex = require("knex");
 
@@ -57,9 +58,9 @@ async function checkOutdatedData(req) {
 
     const results = Array.from(await pageResultsDAO(result_amount, startFrom));
 
-    const minuteToMs = (minute) => minute * 60 * 1000;
-    const hourToMs = (hour) => hour * 60 * 60 * 1000;
-    const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
+    // const minuteToMs = (minute) => minute * 60 * 1000;
+    // const hourToMs = (hour) => hour * 60 * 60 * 1000;
+    // const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
 
     const outdatedData = results
       .map((curr) => {
@@ -154,17 +155,39 @@ async function getPrice(coins) {
 }
 
 async function checkOutdatedPrice(coins) {
-  const prices = await getPriceDao(coins);
+  const lastUpdateList = await getPriceDao(coins);
+  const listToUpdate = lastUpdateList
+    .filter((coin) => {
+      const lastUpdate = coin.updated_at;
+      return (
+        timeStamp(lastUpdate) + minuteToMs(1) < timeStamp() && coin.currency_id
+      );
+    })
+    .map((curr) => curr.currency_id);
 
-  prices.forEach((coin) => {
-    const lastUpdate = coin.updated_at;
-    const minuteToMs = (minute) => minute * 60 * 1000;
-    const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
+  return listToUpdate;
+}
 
-    if (timeStamp(lastUpdate) + minuteToMs(1) < timeStamp()) {
-      coins.splice(coins.indexOf(coin.currency_id), 1);
-    }
+async function updatePrice(coins) {
+  const params = coins.join("%2C");
+
+  const { data } = await axios.get(
+    `/simple/price?ids=${params}&vs_currencies=usd`
+  );
+
+  const formatedData = Object.entries(data).map((curr) => {
+    return {
+      currency_id: curr[0],
+      current_price: curr[1].usd,
+      updated_at: new Date(),
+    };
   });
+
+  formatedData.forEach(async (curr) => {
+    await priceUpdateDAO(curr);
+  });
+
+  return formatedData;
 }
 
 module.exports = {
@@ -173,4 +196,5 @@ module.exports = {
   updateData,
   getPrice,
   checkOutdatedPrice,
+  updatePrice,
 };
