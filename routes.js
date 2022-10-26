@@ -4,7 +4,7 @@ const { list, getPrice } = require("./controller/listController");
 const { signup } = require("./controller/userController");
 
 // router.route("/login").get();
-router.route("/signup").get(signup);
+router.route("/signup").post(signup);
 router.route("/list/:page/:result_amount").get(list);
 // router.route("/search").get();
 router.route("/price").get(getPrice);
