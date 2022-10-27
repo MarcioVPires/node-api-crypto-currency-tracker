@@ -1,4 +1,8 @@
-const { getUserDAO, signupUserDAO } = require("../dao/user");
+const {
+  getUserDAO,
+  signupUserDAO,
+  updateUserPassword,
+} = require("../dao/user");
 const securePassword = require("secure-password");
 const pwd = securePassword();
 
@@ -50,4 +54,44 @@ async function signup(req, res) {
   return res.json({ name, email, password, passwordConfirmation });
 }
 
-module.exports = { signup };
+async function login(req, res) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.json({ message: "Todos os campos precisam ser preenchidos" });
+  }
+
+  const user = await getUserDAO(email);
+
+  if (user.length <= 0) {
+    return res.json({ message: "O usuário não existe" });
+  }
+
+  const verifyPassword = await pwd.verify(
+    Buffer.from(password),
+    Buffer.from(user[0].password, "hex")
+  );
+
+  console.log(verifyPassword);
+
+  switch (verifyPassword) {
+    case securePassword.INVALID_UNRECOGNIZED_HASH:
+    case securePassword.INVALID:
+      return res.json({ message: "Email ou senha Incorretos" });
+    case securePassword.VALID:
+      return res.json(`Usuário ${user[0].name} Autenticado`);
+    case securePassword.VALID_NEEDS_REHASH:
+      try {
+        const newHash = (await pwd.hash(Buffer.from(password))).toString("hex");
+        const updatePassword = await updateUserPassword({
+          email,
+          password: newHash,
+        });
+
+        console.log(updatePassword);
+      } catch (error) {
+        console.log(error);
+      }
+  }
+}
+module.exports = { signup, login };
