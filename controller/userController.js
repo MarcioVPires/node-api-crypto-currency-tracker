@@ -5,6 +5,7 @@ const {
 } = require("../dao/user");
 const securePassword = require("secure-password");
 const pwd = securePassword();
+const jwt = require("jsonwebtoken");
 
 async function signup(req, res) {
   const { name, email, password, passwordConfirmation } = req.body;
@@ -79,7 +80,7 @@ async function login(req, res) {
     case securePassword.INVALID:
       return res.json({ message: "Email ou senha Incorretos" });
     case securePassword.VALID:
-      return res.json(`Usuário ${user[0].name} Autenticado`);
+      break;
     case securePassword.VALID_NEEDS_REHASH:
       try {
         const newHash = (await pwd.hash(Buffer.from(password))).toString("hex");
@@ -93,5 +94,16 @@ async function login(req, res) {
         console.log(error);
       }
   }
+
+  const token = jwt.sign(
+    {
+      id: user[0].id,
+      name: user[0].name,
+      email: user[0].email,
+    },
+    process.env.USER_TOKEN
+  );
+
+  return res.json({ token });
 }
 module.exports = { signup, login };
