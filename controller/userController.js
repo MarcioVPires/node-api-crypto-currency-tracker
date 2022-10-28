@@ -101,9 +101,25 @@ async function login(req, res) {
       name: user[0].name,
       email: user[0].email,
     },
-    process.env.USER_TOKEN
+    process.env.USER_TOKEN,
+    {
+      expiresIn: "1h",
+    }
   );
 
   return res.json({ token });
 }
-module.exports = { signup, login };
+
+async function getWatchList(req, res) {
+  const { watch } = req.body;
+
+  if (!watch) {
+    return res.json({ message: "The coin ID missing..." });
+  }
+
+  res.json(watch);
+}
+
+async function setWatchList() {}
+
+module.exports = { signup, login, getWatchList, setWatchList };
