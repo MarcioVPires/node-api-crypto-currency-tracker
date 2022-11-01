@@ -4,7 +4,7 @@ exports.up = function (knex) {
     table.string("name").notNullable();
     table.string("email").unique().notNullable();
     table.text("password").notNullable();
-    table.specificType("watchlist", "text ARRAY");
+    table.specificType("watchlist", "TEXT[]").defaultTo("{}");
   });
 };
 

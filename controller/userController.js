@@ -39,7 +39,7 @@ async function signup(req, res) {
     const saveUser = await signupUserDAO({
       name,
       email,
-      passwordHash,
+      password: passwordHash,
     });
 
     if (saveUser.length <= 0) {
@@ -110,16 +110,4 @@ async function login(req, res) {
   return res.json({ token });
 }
 
-async function getWatchList(req, res) {
-  const { watch } = req.body;
-
-  if (!watch) {
-    return res.json({ message: "The coin ID missing..." });
-  }
-
-  res.json(watch);
-}
-
-async function setWatchList() {}
-
-module.exports = { signup, login, getWatchList, setWatchList };
+module.exports = { signup, login };

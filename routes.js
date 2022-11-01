@@ -2,12 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { authenticationFilter } = require("./middleware/authentication");
 const { list, getPrice } = require("./controller/listController");
+const { signup, login } = require("./controller/userController");
 const {
-  signup,
-  login,
   getWatchList,
   setWatchList,
-} = require("./controller/userController");
+} = require("./controller/watchlistController");
 
 router.route("/login").get(login);
 router.route("/signup").post(signup);
