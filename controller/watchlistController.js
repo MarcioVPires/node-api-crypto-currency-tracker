@@ -3,6 +3,25 @@ const { formatNewList } = require("../service/watchlist");
 const { getCoinById } = require("../dao/list");
 
 async function getWatchList(req, res) {
+  const { id } = req.user;
+
+  if (!id) {
+    return res.json({ message: "User must me logged in..." });
+  }
+
+  try {
+    const [{ watchlist }] = await getWatchListDAO(id);
+
+    if (watchlist.length < 0) {
+      return res.json({ message: "The watchlist is empty..." });
+    }
+
+    const coins_info = await getCoinById(watchlist);
+
+    return res.json(coins_info);
+  } catch (error) {
+    console.log(error);
+  }
   return res.json("Watch list");
 }
 
@@ -19,7 +38,7 @@ async function setWatchList(req, res) {
   }
 
   try {
-    const coinExists = await getCoinById(coin_id);
+    const coinExists = await getCoinById([coin_id]);
 
     if (coinExists.length <= 0) {
       return res.json({ message: "The coin ID informed doesn't exist..." });

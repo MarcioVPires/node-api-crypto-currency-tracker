@@ -56,10 +56,11 @@ async function getPriceDao(coins) {
   return prices;
 }
 
-async function getCoinById(id) {
-  const coin = await db("coins_list").select("*").where({ currency_id: id });
-  console.log(id);
-  console.log(coin);
+async function getCoinById(currency_id) {
+  console.log(currency_id);
+  const coin = await db("coins_list")
+    .select("*")
+    .whereIn("currency_id", currency_id);
 
   return coin;
 }
