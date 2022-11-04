@@ -57,6 +57,7 @@ async function signup(req, res) {
 
 async function login(req, res) {
   const { email, password } = req.body;
+  console.log(req);
 
   if (!email || !password) {
     return res.json({ message: "Todos os campos precisam ser preenchidos" });

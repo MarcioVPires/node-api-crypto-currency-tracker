@@ -56,6 +56,14 @@ async function getPriceDao(coins) {
   return prices;
 }
 
+async function getCoinById(id) {
+  const coin = await db("coins_list").select("*").where({ currency_id: id });
+  console.log(id);
+  console.log(coin);
+
+  return coin;
+}
+
 module.exports = {
   pageResultsDAO,
   totalEntriesDao,
@@ -63,4 +71,5 @@ module.exports = {
   hourlyDataUpdateDao,
   dailyDataUpdateDao,
   getPriceDao,
+  getCoinById,
 };
