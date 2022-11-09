@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticationFilter } = require("./middleware/authentication");
-const { list, getPrice } = require("./controller/listController");
+const { list, getPrice, searchItem } = require("./controller/listController");
 const { signup, login } = require("./controller/userController");
 const {
   getWatchList,
@@ -11,7 +11,7 @@ const {
 router.route("/login").get(login);
 router.route("/signup").post(signup);
 router.route("/list/:page/:result_amount").get(list);
-// router.route("/search").get();
+router.route("/search").get(searchItem);
 router.route("/price").get(getPrice);
 // router.route("/history").get();
 

@@ -51,7 +51,9 @@ async function setWatchList(req, res) {
     const addToWatchList = await setWatchListDAO({ id, newList });
 
     return res.json(addToWatchList);
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports = { getWatchList, setWatchList };

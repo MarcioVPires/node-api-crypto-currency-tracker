@@ -4,6 +4,7 @@ const {
   updateData,
   checkOutdatedPrice,
   updatePrice,
+  searchForMatchs,
 } = require("../service/list");
 
 async function list(req, res) {
@@ -35,13 +36,32 @@ async function getPrice(req, res) {
     if (outdatedPrice.length < 1) {
       return res.json({ message: "All coins are updated" });
     }
-    console.log("aqui");
+
     const newPrices = await updatePrice(outdatedPrice);
-    console.log("aqui 3");
+
     res.json(newPrices);
   } catch (error) {
     res.json(error);
   }
 }
 
-module.exports = { list, getPrice };
+async function searchItem(req, res) {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      return res.json({
+        message: "You must inform a coin name, id or symbol...",
+      });
+    }
+    const searchResults = await searchForMatchs(name);
+
+    return res.json(searchResults);
+  } catch (error) {
+    return console.log(error);
+  }
+
+  return res.json(name);
+}
+
+module.exports = { list, getPrice, searchItem };

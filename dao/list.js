@@ -65,6 +65,17 @@ async function getCoinById(currency_id) {
   return coin;
 }
 
+async function searchItemDAO(name) {
+  const results = await db("coins_list")
+    .select("*")
+    .where("currency_id", "ilike", `${name}%`)
+    .orWhere("name", "ilike", `${name}%`)
+    .orWhere("symbol", "ilike", `${name}%`)
+    .orderBy("rank", "asc");
+
+  return results;
+}
+
 module.exports = {
   pageResultsDAO,
   totalEntriesDao,
@@ -73,4 +84,5 @@ module.exports = {
   dailyDataUpdateDao,
   getPriceDao,
   getCoinById,
+  searchItemDAO,
 };

@@ -5,6 +5,7 @@ const {
   hourlyDataUpdateDao,
   dailyDataUpdateDao,
   getPriceDao,
+  searchItemDAO,
 } = require("../../dao/list");
 const { formatUpdatedData } = require("./formatUpdatedData");
 const { minuteToMs, hourToMs, timeStamp } = require("../utils/time");
@@ -57,10 +58,6 @@ async function checkOutdatedData(req) {
     }
 
     const results = Array.from(await pageResultsDAO(result_amount, startFrom));
-
-    // const minuteToMs = (minute) => minute * 60 * 1000;
-    // const hourToMs = (hour) => hour * 60 * 60 * 1000;
-    // const timeStamp = (date) => (date ? new Date(date).getTime() : Date.now());
 
     const outdatedData = results
       .map((curr) => {
@@ -190,6 +187,26 @@ async function updatePrice(coins) {
   return formatedData;
 }
 
+async function searchForMatchs(name) {
+  const results = await searchItemDAO(name);
+
+  const lower = (item) => item.toLowerCase();
+  const exactMatch = results.find((curr, index) => {
+    const term = lower(name);
+
+    if (
+      term === lower(curr.name) ||
+      term === lower(curr.currency_id) ||
+      term === lower(curr.symbol)
+    ) {
+      results.splice(index, 1);
+      return curr;
+    }
+  });
+
+  return { exactMatch, results };
+}
+
 module.exports = {
   getPageResults,
   checkOutdatedData,
@@ -197,4 +214,5 @@ module.exports = {
   getPrice,
   checkOutdatedPrice,
   updatePrice,
+  searchForMatchs,
 };
